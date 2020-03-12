@@ -1,0 +1,66 @@
+{
+  "root": true,
+  "extends": "airbnb-base",
+  "env": {
+    "node": true,
+    "es6": true,
+    "mocha": true
+  },
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "plugins": ["ignorable-jsdoc"],
+  "rules": {
+    "consistent-return": "error",
+    "no-param-reassign": "error",
+    "comma-dangle": 1,
+    "curly": ["error", "multi-line"],
+    "implicit-arrow-linebreak": "off",
+    "import/prefer-default-export": "off",
+    "function-paren-newline": "off",
+    "object-curly-newline": "off",
+    "arrow-parens": "off",
+    "import/no-unresolved": [
+      2,
+      {
+        "commonjs": true
+      }
+    ],
+    "no-shadow": [
+      "error",
+      {
+        "allow": ["req", "res", "next", "err"]
+      }
+    ],
+    "ignorable-jsdoc/require-jsdoc": [
+      "error",
+      {
+        "require": {
+          "FunctionDeclaration": true,
+          "MethodDefinition": true,
+          "ClassDeclaration": true
+        },
+        "ignore": ["constructor"]
+      }
+    ],
+    "ignorable-jsdoc/valid-jsdoc": [
+      "error",
+      {
+        "requireReturn": true,
+        "requireReturnType": true,
+        "requireParamDescription": false,
+        "requireReturnDescription": true,
+        "ignore": ["import"]
+      }
+    ],
+    "require-jsdoc": "off",
+    "valid-jsdoc": "off",
+    "class-methods-use-this": "off"
+  }
+}

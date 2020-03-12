@@ -1,0 +1,43 @@
+{
+  "name": "farm4me_api",
+  "version": "1.0.0",
+  "description": "this is the api serve served with cloud functions",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test",
+    "serve": "npm run build:functions && firebase emulators:start --only functions",
+    "serve:dev": "nodemon --watch firebaseFunctions --watch package.json --watch .eslintrc --exec npm run serve",
+    "prebuild": "node node_modules/rimraf/bin functions",
+    "build": "npm run build:functions",
+    "postbuild": "cd functions && npm i -s",
+    "deploy": "npm run build && firebase deploy --only functions",
+    "build:functions": "babel firebaseFunctions --out-dir functions --copy-files --ignore firebaseFunctions/node_modules"
+  },
+  "author": "Henry P. Izontimi",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^10.0.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-ignorable-jsdoc": "^0.1.2",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-jsx-a11y": "^6.2.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-react": "^7.13.0",
+    "firebase-functions-test": "^0.1.6",
+    "nodemon": "^1.19.0",
+    "rimraf": "^3.0.2"
+  },
+  "dependencies": {
+    "jsdoc-import-typedef": "^4.0.0-dev"
+  }
+}
