@@ -39,6 +39,8 @@ build/
 functions/
 serviceAccount.js
 serviceAccount.json
+env.json
+.runtimeConfig.json
 
 # TypeScript v1 declaration files
 typings/

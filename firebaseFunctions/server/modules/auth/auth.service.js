@@ -1,4 +1,6 @@
+import { Container } from 'typedi';
 import { UserRepo } from './user.repository';
+import { generateAuthToken } from '../../helpers/tokenHelpers';
 
 /**
  * User Service class
@@ -11,10 +13,20 @@ export class AuthService {
    *  @returns {Promise<FirebaseFirestore.DocumentData>} user
    */
   static async signupUser(userData) {
-    const user = await (await (await UserRepo.create(userData)).get()).data();
-    const { password, ...userWithoutPassword } = user;
+    const userRepo = Container.get(UserRepo);
+    const user = await userRepo.create(userData);
+    const userDoc = (await user.get()).data();
 
-    return userWithoutPassword;
+    const { password, ...userWithoutPassword } = userDoc;
+    userWithoutPassword.id = user.id;
+
+    /**
+     * @type {*}
+     */
+    const result = { ...userWithoutPassword };
+    const token = generateAuthToken(result);
+
+    return { user: { ...result, token } };
   }
 
   /**
@@ -24,7 +36,8 @@ export class AuthService {
    *  @returns {Promise<boolean>} the status of an existing email
    */
   static async checkEmailExists(email) {
-    const userSnapShot = await UserRepo.getByEmail(email);
+    const userRepo = Container.get(UserRepo);
+    const userSnapShot = await userRepo.getByEmail(email);
 
     if (userSnapShot.empty) {
       return false;

@@ -2,7 +2,6 @@
 import * as Express from 'express';
 import { AuthService } from './auth.service';
 import { AppResponse } from '../../helpers/AppResponse';
-
 /**
  * User Controller Class
  */
@@ -15,7 +14,7 @@ export class AuthController {
    * @returns {Promise<any>} response
    */
   static async attemptSignup(req, res) {
-    const { email, phone, password } = req.body;
+    const { firstName, email, phone, password } = req.body;
 
     const isEmailTaken = await AuthService.checkEmailExists(email);
 
@@ -23,7 +22,7 @@ export class AuthController {
       return AppResponse.badRequest(res, { message: 'An account already exist with this details' });
     }
 
-    const user = await AuthService.signupUser({ email, phone, password });
+    const user = await AuthService.signupUser({ email, phone, password, firstName });
 
     return AppResponse.success(res, { data: user });
   }

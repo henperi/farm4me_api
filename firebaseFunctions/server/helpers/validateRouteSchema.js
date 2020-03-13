@@ -1,4 +1,6 @@
 // eslint-disable-next-line no-unused-vars
+import * as Express from 'express';
+// eslint-disable-next-line no-unused-vars
 import * as Joi from '@hapi/joi';
 import { AppResponse } from './AppResponse';
 import { formatJoiErrors } from './formatJoiErrors';
@@ -7,8 +9,9 @@ import { formatJoiErrors } from './formatJoiErrors';
  * This function helps to validate a route schema
  *
  * @param {Joi.ObjectSchema} schema
- * @param {'body' | 'query' | 'params'} path - The request object path to validate
- * @returns {*} any
+ * @param {'body' | 'query' | 'params'} path - The path on the request to validate, can be
+ * either of [body, query, params]
+ * @returns {Express.RequestHandler<any, any, any>} Request Handler
  */
 export const validateRouteSchema = (schema, path) => async (req, res, next) => {
   try {

@@ -1,5 +1,11 @@
 {
   "functions": {
     "predeploy": []
+  },
+  "emulators": {
+    "functions": {
+      "host": "localhost",
+      "port": 4212
+    }
   }
 }

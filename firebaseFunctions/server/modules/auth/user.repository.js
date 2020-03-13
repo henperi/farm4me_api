@@ -1,26 +1,30 @@
-/**
- * @typedef {(import("../../models").Firestore)} Firestore
- */
-
+// /**
+//  * @typedef {(import("../../models").Firestore)} Firestore
+//  */
 import { log } from 'util';
-import { fireDb } from '../../models';
+import { Container } from 'typedi';
 
+import { fireDb, collections } from '../../models';
+import { hashPassword } from '../../helpers/passwordHelpers';
+
+/**
+ * @typedef {typeof Container} DiContainer
+ */
 
 /**
  * This is the user repository
  */
 export class UserRepo {
-  // /**
-  //  * @param {Firestore} db
-  //  */
-  // constructor(db) {
-  //   this.db = db;
-  //   this.User = this.db.collection('User');
-  // }
   /**
-   *
+   * @param {DiContainer} container
    */
-  static get User() { return fireDb.collection('User'); }
+  constructor(container) {
+    /**
+     * @type {FirebaseFirestore.Firestore}
+     */
+    this.db = container.get('fireDb');
+    this.User = this.db.collection(collections.User);
+  }
 
   /**
    * method to get a user by email
@@ -28,7 +32,7 @@ export class UserRepo {
    *
    *  @returns {Promise<FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>>} user
    */
-  static async getByEmail(email) {
+  async getByEmail(email) {
     try {
       return await this.User.where('email', '==', email).get();
     } catch (error) {
@@ -43,12 +47,15 @@ export class UserRepo {
    *
    *  @returns {Promise<FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>>} user
    */
-  static async create(userData) {
+  async create(userData) {
     try {
+      const password = hashPassword(userData.password);
+
       return await this.User.add({
+        firstName: userData.firstName,
         phone: userData.phone,
         email: userData.email,
-        password: userData.password,
+        password,
         createdAt: Date.now(),
       });
     } catch (error) {
@@ -57,3 +64,6 @@ export class UserRepo {
     }
   }
 }
+
+Container.set('fireDb', fireDb);
+Container.set(UserRepo, new UserRepo(Container));

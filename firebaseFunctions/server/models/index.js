@@ -11,3 +11,16 @@ admin.initializeApp({
   @typedef {fireDb} Firestore
 */
 export const fireDb = admin.firestore();
+
+/**
+ * The db collections
+ */
+class Collections {
+  constructor() {
+    this.User = 'User';
+  }
+}
+
+export const collections = new Collections();
+
+// console.log(collections.User);

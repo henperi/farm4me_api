@@ -1,3 +1,4 @@
+import { log } from 'util';
 import { AppResponse } from './AppResponse';
 /**
  *
@@ -16,6 +17,8 @@ export const asyncHandler = (callbackMiddleware) => async (req, res, next) => {
   try {
     return await callbackMiddleware(req, res, next);
   } catch (errors) {
+    log(errors);
+
     return AppResponse.serverError(res, { errors });
   }
 };

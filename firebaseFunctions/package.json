@@ -7,13 +7,15 @@
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "resolve:env": "firebase functions:config:get > .runtimeconfig.json"
   },
   "engines": {
     "node": "8"
   },
   "dependencies": {
-    "@hapi/joi": "^16.1.2",
+    "@hapi/joi": "^16.1.8",
+    "babel-runtime": "^6.26.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
@@ -21,14 +23,15 @@
     "dotenv": "^8.0.0",
     "express": "^4.17.1",
     "express-form-data": "^2.0.10",
-    "firebase-admin": "^8.9.2",
+    "firebase-admin": "^8.10.0",
     "firebase-functions": "^3.3.0",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.24.0",
     "morgan": "^1.9.1",
     "naija-phone-number": "^1.0.2",
     "rimraf": "^3.0.2",
-    "shortid": "^2.2.15"
+    "shortid": "^2.2.15",
+    "typedi": "^0.8.0"
   },
   "private": true
 }

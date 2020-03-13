@@ -5,11 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "npm test",
-    "serve": "npm run build:functions && firebase emulators:start --only functions",
-    "serve:dev": "nodemon --watch firebaseFunctions --watch package.json --watch .eslintrc --exec npm run serve",
+    "set:env": "test -f env.json && firebase functions:config:unset farm4me && firebase functions:config:set farm4me=\"$(cat env.json)\" || echo \"Please add the file env.json before deploy.\"",
+    "set:dev:env": "cd functions && npm run resolve:env",
+    "serve": "npm run build:functions && npm run set:env && npm run set:dev:env & firebase emulators:start --only functions",
+    "serve:dev": "nodemon --watch firebaseFunctions --watch package.json --watch env.json --watch .eslintrc --exec npm run serve",
     "prebuild": "node node_modules/rimraf/bin functions",
     "build": "npm run build:functions",
-    "postbuild": "cd functions && npm i -s",
+    "postbuild": "npm run set:env && cd functions && npm i -s",
     "deploy": "npm run build && firebase deploy --only functions",
     "build:functions": "babel firebaseFunctions --out-dir functions --copy-files --ignore firebaseFunctions/node_modules"
   },
@@ -38,6 +40,6 @@
     "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "jsdoc-import-typedef": "^4.0.0-dev"
+    "babel-runtime": "^6.26.0"
   }
 }
