@@ -1,6 +1,7 @@
 import { Container } from 'typedi';
 import { UserRepo } from './user.repository';
 import { generateAuthToken } from '../../helpers/tokenHelpers';
+import { comparePassword } from '../../helpers/passwordHelpers';
 
 /**
  * User Service class
@@ -14,11 +15,11 @@ export class AuthService {
    */
   static async signupUser(userData) {
     const userRepo = Container.get(UserRepo);
-    const user = await userRepo.create(userData);
-    const userDoc = (await user.get()).data();
+    const userRef = await userRepo.create(userData);
+    const userDoc = (await userRef.get()).data();
 
     const { password, ...userWithoutPassword } = userDoc;
-    userWithoutPassword.id = user.id;
+    userWithoutPassword.id = userRef.id;
 
     /**
      * @type {*}
@@ -26,7 +27,7 @@ export class AuthService {
     const result = { ...userWithoutPassword };
     const token = generateAuthToken(result);
 
-    return { user: { ...result, token } };
+    return { user: userWithoutPassword, token };
   }
 
   /**
@@ -37,17 +38,49 @@ export class AuthService {
    */
   static async checkEmailExists(email) {
     const userRepo = Container.get(UserRepo);
-    const userSnapShot = await userRepo.getByEmail(email);
+    const docSnapShot = await userRepo.getByEmail(email);
 
-    if (userSnapShot.empty) {
+    if (docSnapShot.empty) {
       return false;
     }
 
-    /*
-    const result = [];
-    userSnapShot.forEach((docs) => result.push(docs.data()));
-    */
-
     return true;
+  }
+
+  /**
+   *  Method to check if an email has been taken or not
+   *  @param {string} email
+   *  @param {string} password
+   *
+   *  @returns {Promise<{isValidUser: boolean, token: string}>} the status of an existing email
+   */
+  static async attemptAuth(email, password) {
+    const userRepo = Container.get(UserRepo);
+    const querySnapShot = await userRepo.getByEmail(email);
+
+    if (querySnapShot.empty) {
+      return { isValidUser: false, token: null };
+    }
+
+    const userSnapShot = querySnapShot.docs.map((doc) => doc)[0];
+
+    if (!comparePassword(password, userSnapShot.data().password)) {
+      return { isValidUser: false, token: null };
+    }
+
+    const {
+      password: userPassword,
+      ...userWithoutPassword
+    } = userSnapShot.data();
+
+    userWithoutPassword.id = userSnapShot.id;
+
+    /**
+     * @type {*}
+     */
+    const result = { ...userWithoutPassword };
+    const token = generateAuthToken(result);
+
+    return { isValidUser: true, token };
   }
 }

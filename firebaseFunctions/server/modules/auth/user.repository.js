@@ -34,7 +34,7 @@ export class UserRepo {
    */
   async getByEmail(email) {
     try {
-      return await this.User.where('email', '==', email).get();
+      return await this.User.where('email', '==', email).limit(1).get();
     } catch (error) {
       log(error);
       throw new Error(error);

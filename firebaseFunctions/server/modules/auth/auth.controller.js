@@ -22,8 +22,26 @@ export class AuthController {
       return AppResponse.badRequest(res, { message: 'An account already exist with this details' });
     }
 
-    const user = await AuthService.signupUser({ email, phone, password, firstName });
+    const { token } = await AuthService.signupUser({ email, phone, password, firstName });
 
-    return AppResponse.success(res, { data: user });
+    return AppResponse.success(res, { data: { token } });
+  }
+
+  /**
+   *
+   * @param {Express.Request} req
+   * @param {Express.Response} res
+   *
+   * @returns {Promise<any>} response
+   */
+  static async attemptLogin(req, res) {
+    const { email, password } = req.body;
+    const { isValidUser, token } = await AuthService.attemptAuth(email, password);
+
+    if (!isValidUser) {
+      return AppResponse.unAuthorized(res, { message: 'Invalid login credential' });
+    }
+
+    return AppResponse.success(res, { data: { token } });
   }
 }

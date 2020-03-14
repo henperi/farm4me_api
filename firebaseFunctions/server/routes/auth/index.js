@@ -9,6 +9,11 @@ const authRouter = express.Router();
 /**
  * signup user
  */
-authRouter.post('/', validateRouteSchema(AuthSchema.signup, 'body'), asyncHandler(AuthController.attemptSignup));
+authRouter.post('/signup', validateRouteSchema(AuthSchema.signup, 'body'), asyncHandler(AuthController.attemptSignup));
+
+/**
+ * login user
+ */
+authRouter.post('/login', validateRouteSchema(AuthSchema.login, 'body'), asyncHandler(AuthController.attemptLogin));
 
 export default authRouter;

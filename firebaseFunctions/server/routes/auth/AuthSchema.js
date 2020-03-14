@@ -33,7 +33,6 @@ export class AuthSchema {
         .email()
         .required(),
       password: Joi.string().required(),
-      fcmToken: Joi.string().optional(),
     });
   }
 

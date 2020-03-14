@@ -18,6 +18,7 @@ export const fireDb = admin.firestore();
 class Collections {
   constructor() {
     this.User = 'User';
+    this.Project = 'Project';
   }
 }
 
