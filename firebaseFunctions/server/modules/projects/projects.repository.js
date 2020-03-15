@@ -10,7 +10,7 @@ import { collections } from '../../models';
 /**
  * @typedef {{
  *   ownerId: string,
- *   projectName: string,
+ *   name: string,
  *   totalCost: number,
  *   numberOfHecters: number,
  *   isPaid: boolean,
@@ -74,7 +74,69 @@ export class ProjectsRepo {
       throw new Error(error);
     }
   }
+
+  /**
+   *  Method to get a Project by id
+   *  @param {string} id
+   *  @returns {Promise<FirebaseFirestore.DocumentData | null>} projectDocSnapshot
+   */
+  async getById(id) {
+    try {
+      const projectDocSnapshot = await this.Project.doc(`/${id}`).get();
+      if (!projectDocSnapshot.exists) {
+        return null;
+      }
+
+      return projectDocSnapshot.data();
+    } catch (error) {
+      log(error);
+      throw new Error(error);
+    }
+  }
+
+  /**
+   *  Method to get all Projects by the ownerId
+   *  @param {string} ownerId
+   *  @returns {Promise<FirebaseFirestore.DocumentData[] | null>} projectDocSnapshot
+   */
+  async getByOwnerId(ownerId) {
+    try {
+      const querySnapshot = await this.Project.where(
+        'ownerId',
+        '==',
+        ownerId,
+      ).get();
+      if (!querySnapshot.empty) {
+        return null;
+      }
+      return querySnapshot.docs.map((doc) => doc.data());
+    } catch (error) {
+      log(error);
+      throw new Error(error);
+    }
+  }
+
+  /**
+   *  Runs a Transaction to update a document and return the updated document
+   *  @param {FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>} projectRef
+   *  @param {*} updateData
+   *  @returns {Promise<FirebaseFirestore.DocumentData>} updatedDocument
+   */
+  async update(projectRef, updateData) {
+    try {
+      await this.db.runTransaction(async (t) => {
+        await t.update(projectRef, { ...updateData });
+      });
+
+      return (await projectRef.get()).data();
+      // const update = projectRef.update({
+      //   ...updateData,
+      // });
+    } catch (error) {
+      log(error);
+      throw new Error(error);
+    }
+  }
 }
 
-// Container.set('fireDb', fireDb);
 Container.set(ProjectsRepo, new ProjectsRepo(Container));

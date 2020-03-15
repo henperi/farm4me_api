@@ -35,32 +35,4 @@ export class AuthSchema {
       password: Joi.string().required(),
     });
   }
-
-  /**
-   * @description The schema used to validate the process of authenticating a user
-   */
-  static get fcmTokenSchema() {
-    return Joi.object({
-      fcmToken: Joi.string().required(),
-    });
-  }
-
-  /**
-   * @description The schema used to validate the process of authenticating a user
-   */
-  static get resetPasswordSchema() {
-    return {
-      payload: Joi.object({
-        oldPassword: Joi.string().required(),
-        newPassword: Joi.string().required(),
-      }),
-      params: Joi.object({
-        resetId: Joi.string()
-          .regex(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/=]*$/)
-          .error(
-            new Error('The reset key supplied has an invalid format'),
-          ),
-      }),
-    };
-  }
 }

@@ -17,9 +17,24 @@ export class ProjectsController {
     const { investmentId, numberOfHecters } = req.body;
     const { id } = res.locals.AuthUser;
 
-    const hasUnpaidProjects = await ProjectsService.checkUnpaidProjects(
-      id,
-    );
+    // const hasUnpaidProjects = await ProjectsService.checkUnpaidProjects(
+    //   id,
+    // );
+
+    // const isValidInvestment = await ProjectsService.checkInvestmentId(
+    //   investmentId,
+    // );
+
+    const [hasUnpaidProjects, isValidInvestment] = await Promise.all([
+      ProjectsService.checkUnpaidProjects(id),
+      ProjectsService.checkInvestmentId(investmentId),
+    ]);
+
+    if (!isValidInvestment) {
+      return AppResponse.badRequest(res, {
+        message: 'Invalid Investment selected, check your investmentId',
+      });
+    }
 
     if (hasUnpaidProjects) {
       return AppResponse.badRequest(res, {
