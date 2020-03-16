@@ -1,17 +1,53 @@
 import { Container } from 'typedi';
 import paystackModule from 'paystack';
+import { log } from 'util';
+
 import { ProjectsRepo } from './projects.repository';
 import { config } from '../../../config';
+
 
 const paystack = paystackModule(config.PAYSTACK.SECRET);
 
 const availableInvestment = {
-  123: {
-    costPerHectre: 120000,
+  '1a2wQrd': {
+    id: '1a2wQrd',
+    name: 'Maize Project',
+    costPerHectre: 227000,
     percentageProfit: 20,
     duration: 6,
     season: 'Dry and Wet',
-    name: 'Maize Project',
+    insurance: 'Leadway Insurance',
+    refundPercent: '100%',
+  },
+  '3a2wQrd': {
+    id: '3a2wQrd',
+    name: 'Millet',
+    costPerHectre: 227000,
+    percentageProfit: 20,
+    duration: 6,
+    season: 'Dry and Wet',
+    insurance: 'Leadway Insurance',
+    refundPercent: '100%',
+  },
+  '2a2wQrd': {
+    id: '2a2wQrd',
+    name: 'Sesam',
+    costPerHectre: 227000,
+    percentageProfit: 20,
+    duration: 6,
+    season: 'Dry and Wet',
+    insurance: 'Leadway Insurance',
+    refundPercent: '100%',
+  },
+  '4a2wQrd': {
+    id: '4a2wQrd',
+    name: 'Mellon',
+    costPerHectre: 227000,
+    percentageProfit: 20,
+    duration: 6,
+    season: 'Dry and Wet',
+    insurance: 'Leadway Insurance',
+    refundPercent: '100%',
   },
 };
 
@@ -128,7 +164,7 @@ export class ProjectsService {
   static async validateTransaction(transactionRef) {
     const response = await paystack.transaction.verify(transactionRef);
 
-    console.log('response', response);
+    log(`response::=> ${response}`);
 
     if (response.status) {
       if (response.data.status) {
