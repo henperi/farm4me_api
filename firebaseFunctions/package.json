@@ -29,6 +29,7 @@
     "moment": "^2.24.0",
     "morgan": "^1.9.1",
     "naija-phone-number": "^1.0.2",
+    "paystack": "^2.0.1",
     "rimraf": "^3.0.2",
     "shortid": "^2.2.15",
     "typedi": "^0.8.0"

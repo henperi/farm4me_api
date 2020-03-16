@@ -8,13 +8,32 @@ import { Authorize } from '../../middlewares/Authorize';
 const projectRouter = express.Router();
 
 /**
- * create project
+ * Create a new project
  */
 projectRouter.post(
   '/',
   Authorize.user,
   validateRouteSchema(ProjectSchema.create, 'body'),
   asyncHandler(ProjectsController.create),
+);
+
+/**
+ * Get all projects of the authunticated user
+ */
+projectRouter.get(
+  '/',
+  Authorize.user,
+  asyncHandler(ProjectsController.getAll),
+);
+
+/**
+ * Start a project
+ */
+projectRouter.post(
+  '/start/:projectId/:transactionRef',
+  Authorize.user,
+  validateRouteSchema(ProjectSchema.start, 'params'),
+  asyncHandler(ProjectsController.start),
 );
 
 export default projectRouter;

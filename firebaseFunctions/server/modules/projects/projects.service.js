@@ -1,5 +1,9 @@
 import { Container } from 'typedi';
+import paystackModule from 'paystack';
 import { ProjectsRepo } from './projects.repository';
+import { config } from '../../../config';
+
+const paystack = paystackModule(config.PAYSTACK.SECRET);
 
 const availableInvestment = {
   123: {
@@ -10,6 +14,21 @@ const availableInvestment = {
     name: 'Maize Project',
   },
 };
+
+/**
+ *
+ * @typedef {{
+ *    investmentId: string, numberOfHecters: string, ownerId: string
+ *  }} Project.create
+ */
+
+/**
+ * @typedef {Promise<{
+ *     projectSnapshot: FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData> | null,
+ *     belongsToUser: boolean
+ *     }
+ *  >} isValidUserProject
+ */
 
 /**
  * User Service class
@@ -49,13 +68,6 @@ export class ProjectsService {
   }
 
   /**
-   *
-   * @typedef {{
-   *    investmentId: string, numberOfHecters: string, ownerId: string
-   *  }} Project.create
-   */
-
-  /**
    * Method to create a newProject
    *  @param {Project.create} userData
    *
@@ -91,5 +103,86 @@ export class ProjectsService {
     projectDoc.id = projectRef.id;
 
     return { project: projectDoc };
+  }
+
+  /**
+   * Method to get a user's projects
+   *  @param {{userId: string}} userData
+   *
+   *  @returns {Promise<FirebaseFirestore.DocumentData>} user
+   */
+  static async getUserProjects({ userId }) {
+    const projectRepo = Container.get(ProjectsRepo);
+
+    const projects = await projectRepo.getByOwnerId(userId);
+
+    return { projects };
+  }
+
+  /**
+   * Method to validate a transaction
+   * @param {string} transactionRef
+   *
+   * @returns {Promise<{status: boolean, data: any}>} validateTransaction
+   */
+  static async validateTransaction(transactionRef) {
+    const response = await paystack.transaction.verify(transactionRef);
+
+    console.log('response', response);
+
+    if (response.status) {
+      if (response.data.status) {
+        return { status: true, data: response.data };
+      }
+      return { status: false, data: null };
+    }
+
+    return { status: false, data: null };
+  }
+
+  /**
+   * Method to get a user's projects
+   *  @param {{ ownerId: string, projectId: string }} userData
+   *
+   * @returns {isValidUserProject} whether the project is valid or not
+   *
+   */
+  static async isValidUserProject({ ownerId, projectId }) {
+    const projectRepo = Container.get(ProjectsRepo);
+
+    const projectSnapshot = await projectRepo.getById(projectId);
+
+    if (
+      projectSnapshot.exists
+      && projectSnapshot.data().ownerId === ownerId
+    ) {
+      return { projectSnapshot, belongsToUser: true };
+    }
+
+    return { projectSnapshot: null, belongsToUser: false };
+  }
+
+  /**
+   * Method to get a user's projects
+   *
+   * @param {FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>} projectRef
+   * @returns {Promise<{updatedProject: FirebaseFirestore.DocumentData}>} updatedProject
+   */
+  static async start(projectRef) {
+    const projectRepo = Container.get(ProjectsRepo);
+
+    const oneMonthInMilliSeconds = 60 * 60 * 24 * 30 * 1000;
+
+    const endDate = (await projectRef.get()).data().duration * oneMonthInMilliSeconds;
+
+    const updatedProject = await projectRepo.update(projectRef, {
+      isPaid: true,
+      startDate: Date.now(),
+      endDate: Date.now() + endDate,
+    });
+
+    updatedProject.id = projectRef.id;
+
+    return { updatedProject };
   }
 }

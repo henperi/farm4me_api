@@ -7,6 +7,7 @@ import { AppResponse } from '../../helpers/AppResponse';
  */
 export class ProjectsController {
   /**
+   * Create project
    *
    * @param {Express.Request} req
    * @param {Express.Response} res
@@ -16,14 +17,6 @@ export class ProjectsController {
   static async create(req, res) {
     const { investmentId, numberOfHecters } = req.body;
     const { id } = res.locals.AuthUser;
-
-    // const hasUnpaidProjects = await ProjectsService.checkUnpaidProjects(
-    //   id,
-    // );
-
-    // const isValidInvestment = await ProjectsService.checkInvestmentId(
-    //   investmentId,
-    // );
 
     const [hasUnpaidProjects, isValidInvestment] = await Promise.all([
       ProjectsService.checkUnpaidProjects(id),
@@ -49,5 +42,72 @@ export class ProjectsController {
     });
 
     return AppResponse.success(res, { data: project });
+  }
+
+  /**
+   * Get all projects of an authorized user
+   *
+   * @param {Express.Request} req
+   * @param {Express.Response} res
+   *
+   * @returns {Promise<any>} response
+   */
+  static async getAll(req, res) {
+    const { id } = res.locals.AuthUser;
+
+    const projects = await ProjectsService.getUserProjects({
+      userId: id,
+    });
+
+    return AppResponse.success(res, { data: projects });
+  }
+
+  /**
+   * Get all projects of an authorized user
+   *
+   * @param {Express.Request} req
+   * @param {Express.Response} res
+   *
+   * @returns {Promise<any>} response
+   */
+  static async start(req, res) {
+    const { projectId, transactionRef } = req.params;
+    const { id } = res.locals.AuthUser;
+
+    const {
+      projectSnapshot,
+      belongsToUser,
+    } = await ProjectsService.isValidUserProject({
+      ownerId: id,
+      projectId,
+    });
+
+    const { status } = await ProjectsService.validateTransaction(
+      transactionRef,
+    );
+
+    if (!status) {
+      return AppResponse.badRequest(res, {
+        message: 'Invalid Transaction',
+      });
+    }
+
+    if (!belongsToUser) {
+      return AppResponse.badRequest(res, {
+        message: 'Unable to find this project',
+      });
+    }
+
+    if ((await projectSnapshot.ref.get()).data().isPaid) {
+      return AppResponse.badRequest(res, {
+        message: 'This Project has been started previously',
+      });
+    }
+
+    const updatedProject = await ProjectsService.start(
+      projectSnapshot.ref,
+    );
+
+    return AppResponse.success(res, { data: updatedProject });
   }
 }

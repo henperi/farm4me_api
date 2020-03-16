@@ -17,4 +17,14 @@ export class ProjectSchema {
       numberOfHecters: Joi.number().required(),
     });
   }
+
+  /**
+   * @description The schema used to validate the {Post} /project/start/:projectId endpoint
+   */
+  static get start() {
+    return Joi.object({
+      projectId: Joi.string().required(),
+      transactionRef: Joi.string().required(),
+    });
+  }
 }

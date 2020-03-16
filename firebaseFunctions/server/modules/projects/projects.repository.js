@@ -78,16 +78,13 @@ export class ProjectsRepo {
   /**
    *  Method to get a Project by id
    *  @param {string} id
-   *  @returns {Promise<FirebaseFirestore.DocumentData | null>} projectDocSnapshot
+   *  @returns {Promise<FirebaseFirestore.DocumentSnapshot>} projectDocSnapshot
    */
   async getById(id) {
     try {
       const projectDocSnapshot = await this.Project.doc(`/${id}`).get();
-      if (!projectDocSnapshot.exists) {
-        return null;
-      }
 
-      return projectDocSnapshot.data();
+      return projectDocSnapshot;
     } catch (error) {
       log(error);
       throw new Error(error);
@@ -106,10 +103,15 @@ export class ProjectsRepo {
         '==',
         ownerId,
       ).get();
-      if (!querySnapshot.empty) {
-        return null;
+
+      if (querySnapshot.empty) {
+        return [];
       }
-      return querySnapshot.docs.map((doc) => doc.data());
+      return querySnapshot.docs.map((doc) => {
+        const docData = doc.data();
+        docData.id = doc.id;
+        return docData;
+      });
     } catch (error) {
       log(error);
       throw new Error(error);
@@ -119,7 +121,7 @@ export class ProjectsRepo {
   /**
    *  Runs a Transaction to update a document and return the updated document
    *  @param {FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>} projectRef
-   *  @param {*} updateData
+   *  @param {{ isPaid: boolean, startDate: number, endDate: number}} updateData
    *  @returns {Promise<FirebaseFirestore.DocumentData>} updatedDocument
    */
   async update(projectRef, updateData) {
@@ -129,9 +131,6 @@ export class ProjectsRepo {
       });
 
       return (await projectRef.get()).data();
-      // const update = projectRef.update({
-      //   ...updateData,
-      // });
     } catch (error) {
       log(error);
       throw new Error(error);
