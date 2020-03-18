@@ -1,10 +1,9 @@
 import { Container } from 'typedi';
 import paystackModule from 'paystack';
-import { log } from 'util';
 
 import { ProjectsRepo } from './projects.repository';
 import { config } from '../../../config';
-
+import { generateShortId } from '../../helpers/generateShortId';
 
 const paystack = paystackModule(config.PAYSTACK.SECRET);
 
@@ -12,17 +11,7 @@ const availableInvestment = {
   '1a2wQrd': {
     id: '1a2wQrd',
     name: 'Maize Project',
-    costPerHectre: 227000,
-    percentageProfit: 20,
-    duration: 6,
-    season: 'Dry and Wet',
-    insurance: 'Leadway Insurance',
-    refundPercent: '100%',
-  },
-  '3a2wQrd': {
-    id: '3a2wQrd',
-    name: 'Millet',
-    costPerHectre: 227000,
+    costPerHectare: 125000,
     percentageProfit: 20,
     duration: 6,
     season: 'Dry and Wet',
@@ -31,8 +20,18 @@ const availableInvestment = {
   },
   '2a2wQrd': {
     id: '2a2wQrd',
-    name: 'Sesam',
-    costPerHectre: 227000,
+    name: 'Sesam Project',
+    costPerHectare: 180000,
+    percentageProfit: 20,
+    duration: 6,
+    season: 'Dry and Wet',
+    insurance: 'Leadway Insurance',
+    refundPercent: '100%',
+  },
+  '3a2wQrd': {
+    id: '3a2wQrd',
+    name: 'Millet Project',
+    costPerHectare: 225000,
     percentageProfit: 20,
     duration: 6,
     season: 'Dry and Wet',
@@ -41,8 +40,8 @@ const availableInvestment = {
   },
   '4a2wQrd': {
     id: '4a2wQrd',
-    name: 'Mellon',
-    costPerHectre: 227000,
+    name: 'Mellon Project',
+    costPerHectare: 257000,
     percentageProfit: 20,
     duration: 6,
     season: 'Dry and Wet',
@@ -52,7 +51,6 @@ const availableInvestment = {
 };
 
 /**
- *
  * @typedef {{
  *    investmentId: string, numberOfHecters: string, ownerId: string
  *  }} Project.create
@@ -62,12 +60,12 @@ const availableInvestment = {
  * @typedef {Promise<{
  *     projectSnapshot: FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData> | null,
  *     belongsToUser: boolean
- *     }
+ *    }
  *  >} isValidUserProject
  */
 
 /**
- * User Service class
+ * Project Service class
  */
 export class ProjectsService {
   /**
@@ -112,10 +110,10 @@ export class ProjectsService {
   static async create({ investmentId, numberOfHecters, ownerId }) {
     const projectRepo = Container.get(ProjectsRepo);
     /**
-     * @type {typeof availableInvestment[123]}
+     * @type {typeof availableInvestment['1a2wQrd']}
      */
     const investmentData = availableInvestment[investmentId];
-    const totalCost = investmentData.costPerHectre * parseInt(numberOfHecters, 10);
+    const totalCost = investmentData.costPerHectare * parseInt(numberOfHecters, 10);
     const totalReturns = totalCost * (1 + investmentData.percentageProfit / 100);
     const profit = totalReturns - totalCost;
 
@@ -132,6 +130,7 @@ export class ProjectsService {
       createdAt: Date.now(),
       startDate: null,
       endDate: null,
+      reference: `${ownerId}-.OS.-${generateShortId()}`,
     };
 
     const projectRef = await projectRepo.create(project);
@@ -159,12 +158,13 @@ export class ProjectsService {
    * Method to validate a transaction
    * @param {string} transactionRef
    *
-   * @returns {Promise<{status: boolean, data: any}>} validateTransaction
+   * @returns {Promise<{
+   *    status: boolean, data: any,
+   *  }>
+   * } validateTransaction
    */
   static async validateTransaction(transactionRef) {
     const response = await paystack.transaction.verify(transactionRef);
-
-    log(`response::=> ${response}`);
 
     if (response.status) {
       if (response.data.status) {
@@ -196,6 +196,32 @@ export class ProjectsService {
     }
 
     return { projectSnapshot: null, belongsToUser: false };
+  }
+
+
+  /**
+   * Method to get a user's projects
+   *  @param {{ reference: string }} userData
+   *
+   * @returns {Promise<{
+   *    isValidProject: boolean,
+   *    project: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
+   *  }>
+   * } the results of the validated project
+   *
+   */
+  static async validateByReference({ reference }) {
+    const projectRepo = Container.get(ProjectsRepo);
+
+    const querySnapShot = await projectRepo.getByReference(reference);
+
+    if (querySnapShot.empty) {
+      return { isValidProject: false, project: null };
+    }
+
+    const projectSnapShot = querySnapShot.docs.map((doc) => doc)[0];
+
+    return { isValidProject: true, project: projectSnapShot };
   }
 
   /**

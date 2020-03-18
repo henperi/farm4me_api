@@ -2,6 +2,7 @@
 import * as Express from 'express';
 import { ProjectsService } from './projects.service';
 import { AppResponse } from '../../helpers/AppResponse';
+import { toKobo } from '../../helpers/toKobo';
 /**
  * Projects Controller Class
  */
@@ -71,18 +72,16 @@ export class ProjectsController {
    * @returns {Promise<any>} response
    */
   static async start(req, res) {
-    const { projectId, transactionRef } = req.params;
-    const { id } = res.locals.AuthUser;
+    const { transactionRef } = req.params;
 
     const {
-      projectSnapshot,
-      belongsToUser,
-    } = await ProjectsService.isValidUserProject({
-      ownerId: id,
-      projectId,
+      isValidProject,
+      project,
+    } = await ProjectsService.validateByReference({
+      reference: transactionRef,
     });
 
-    const { status } = await ProjectsService.validateTransaction(
+    const { status, data } = await ProjectsService.validateTransaction(
       transactionRef,
     );
 
@@ -92,20 +91,26 @@ export class ProjectsController {
       });
     }
 
-    if (!belongsToUser) {
+    if (!isValidProject) {
       return AppResponse.badRequest(res, {
-        message: 'Unable to find this project',
+        message: 'Invalid project',
       });
     }
 
-    if ((await projectSnapshot.ref.get()).data().isPaid) {
+    if (data.amount !== toKobo(project.data().totalCost)) {
+      return AppResponse.badRequest(res, {
+        message: 'Project Amount does not match',
+      });
+    }
+
+    if (project.data().isPaid) {
       return AppResponse.badRequest(res, {
         message: 'This Project has been started previously',
       });
     }
 
     const updatedProject = await ProjectsService.start(
-      projectSnapshot.ref,
+      project.ref,
     );
 
     return AppResponse.success(res, { data: updatedProject });

@@ -23,7 +23,6 @@ export class ProjectSchema {
    */
   static get start() {
     return Joi.object({
-      projectId: Joi.string().required(),
       transactionRef: Joi.string().required(),
     });
   }

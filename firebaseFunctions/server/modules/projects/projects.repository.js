@@ -92,6 +92,20 @@ export class ProjectsRepo {
   }
 
   /**
+   *  Method to get a Project by reference
+   *  @param {string} reference
+   *  @returns {Promise<FirebaseFirestore.QuerySnapshot>} projectDocSnapshot
+   */
+  async getByReference(reference) {
+    try {
+      return await this.Project.where('reference', '==', reference).limit(1).get();
+    } catch (error) {
+      log(error);
+      throw new Error(error);
+    }
+  }
+
+  /**
    *  Method to get all Projects by the ownerId
    *  @param {string} ownerId
    *  @returns {Promise<FirebaseFirestore.DocumentData[] | null>} projectDocSnapshot

@@ -30,7 +30,7 @@ projectRouter.get(
  * Start a project
  */
 projectRouter.post(
-  '/start/:projectId/:transactionRef',
+  '/start/:transactionRef',
   Authorize.user,
   validateRouteSchema(ProjectSchema.start, 'params'),
   asyncHandler(ProjectsController.start),
