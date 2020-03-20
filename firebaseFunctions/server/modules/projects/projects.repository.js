@@ -116,7 +116,7 @@ export class ProjectsRepo {
         'ownerId',
         '==',
         ownerId,
-      ).get();
+      ).orderBy('createdAt', 'desc').get();
 
       if (querySnapshot.empty) {
         return [];
