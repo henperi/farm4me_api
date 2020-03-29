@@ -1,7 +1,8 @@
 import { Container } from 'typedi';
-import { UserRepo } from './user.repository';
+import { UserRepo } from '../user/user.repository';
 import { generateAuthToken } from '../../helpers/tokenHelpers';
 import { comparePassword } from '../../helpers/passwordHelpers';
+import { ProfileService } from '../profile/profile.service';
 
 /**
  * User Service class
@@ -17,6 +18,7 @@ export class AuthService {
     const userRepo = Container.get(UserRepo);
     const userRef = await userRepo.create(userData);
     const userDoc = (await userRef.get()).data();
+    ProfileService.createProfile(userRef.id);
 
     const { password, ...userWithoutPassword } = userDoc;
     userWithoutPassword.id = userRef.id;

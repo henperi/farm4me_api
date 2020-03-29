@@ -3,7 +3,9 @@ import { config } from '../../config';
 
 /**
  * @typedef {{
- *  id: string, firstName: string, email: string,
+ *  id: string,
+ *  firstName: string,
+ *  email: string,
  *  phone: string
  * }} UserData
  *
@@ -15,12 +17,13 @@ import { config } from '../../config';
  *
  * @returns {string} Returns the generated token
  */
-export const generateAuthToken = ({ id, email, firstName, phone }) => jwt.sign(
+export const generateAuthToken = ({ id, email, firstName, phone, ...rest }) => jwt.sign(
   {
     id,
     email,
     firstName,
     phone,
+    ...rest,
   },
   config.JWT_SECRET,
   {

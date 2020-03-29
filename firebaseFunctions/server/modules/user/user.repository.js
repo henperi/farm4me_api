@@ -63,6 +63,25 @@ export class UserRepo {
       throw new Error(error);
     }
   }
+
+  /**
+   *  Runs a Transaction to update a document and return the updated document
+   *  @param {FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>} userRef
+   *  @param {object} updateData
+   *  @returns {Promise<FirebaseFirestore.DocumentData>} updatedDocument
+   */
+  async update(userRef, updateData) {
+    try {
+      await this.db.runTransaction(async (t) => {
+        await t.update(userRef, { ...updateData });
+      });
+
+      return (await userRef.get()).data();
+    } catch (error) {
+      log(error);
+      throw new Error(error);
+    }
+  }
 }
 
 Container.set('fireDb', fireDb);

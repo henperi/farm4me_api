@@ -5,7 +5,7 @@ import { Container } from 'typedi';
 
 import { config } from '../../config';
 import { AppResponse } from '../helpers/AppResponse';
-import { UserRepo } from '../modules/auth/user.repository';
+import { UserRepo } from '../modules/user/user.repository';
 
 /**
  * The Authorization class
@@ -58,7 +58,7 @@ export class Authorize {
       } = userSnapShot.data();
 
       userWithoutPassword.id = userSnapShot.id;
-      res.locals = { ...res.locals, AuthUser: userWithoutPassword };
+      res.locals = { ...res.locals, AuthUser: { ...userWithoutPassword, ref: userSnapShot.ref } };
 
       return next();
     } catch (errors) {
