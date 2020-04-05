@@ -5,7 +5,7 @@
  * @typedef {{ details: Detail[] }} Errors
  */
 /**
- * @typedef {{ details: Detail[] | string }} FormatedError
+ * @typedef {{ details: Detail[] | string, detailsObject: {} }} FormatedError
  */
 
 /**
@@ -16,10 +16,12 @@
 export const formatJoiErrors = (errors) => {
   const { details } = errors;
   const detailsArray = [];
+  const detailsObject = {};
 
   if (details) {
     details.map((detail) => {
       const { message, path } = detail;
+      detailsObject[path[0]] = message.replace(/"/gi, '');
 
       return detailsArray.push({
         message: message.replace(/"/gi, ''),
@@ -27,8 +29,8 @@ export const formatJoiErrors = (errors) => {
       });
     });
 
-    return { details: detailsArray };
+    return { details: detailsArray, detailsObject };
   }
 
-  return { details: errors.toString() };
+  return { details: errors.toString(), detailsObject };
 };

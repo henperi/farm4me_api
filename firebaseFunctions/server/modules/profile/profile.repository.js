@@ -51,6 +51,7 @@ export class ProfileRepo {
 
       return await profileRef.set({
         userId,
+        percentageComplete: 25,
       });
     } catch (error) {
       log(error);

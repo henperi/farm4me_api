@@ -31,7 +31,11 @@ export class ProfileController {
   static async addBankInfo(req, res) {
     const { id } = res.locals.AuthUser;
 
-    const profile = await ProfileService.addBankInfo(id, req.body);
+    const { profile, previouslyAdded } = await ProfileService.addBankInfo(id, req.body);
+
+    if (previouslyAdded) {
+      return AppResponse.conflict(res, { message: 'You have added your bank information previously' });
+    }
 
     return AppResponse.success(res, { data: { profile } });
   }
@@ -46,7 +50,11 @@ export class ProfileController {
   static async addAddressInfo(req, res) {
     const { id } = res.locals.AuthUser;
 
-    const profile = await ProfileService.addAddressInfo(id, req.body);
+    const { profile, previouslyAdded } = await ProfileService.addAddressInfo(id, req.body);
+
+    if (previouslyAdded) {
+      return AppResponse.conflict(res, { message: 'You have added your address information previously' });
+    }
 
     return AppResponse.success(res, { data: { profile } });
   }

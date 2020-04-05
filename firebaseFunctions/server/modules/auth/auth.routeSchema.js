@@ -17,7 +17,9 @@ export class AuthSchema {
       email: Joi.string()
         .email()
         .required(),
-      password: Joi.string().required(),
+      password: Joi.string()
+        .min(5)
+        .required(),
       phone: Joi.string()
         .length(11)
         .required(),
@@ -32,7 +34,9 @@ export class AuthSchema {
       email: Joi.string()
         .email()
         .required(),
-      password: Joi.string().required(),
+      password: Joi.string()
+        .min(5)
+        .required(),
     });
   }
 }

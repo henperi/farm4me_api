@@ -32,7 +32,7 @@ export class ProjectsController {
 
     if (hasUnpaidProjects) {
       return AppResponse.badRequest(res, {
-        message: 'You have unpaid projects',
+        message: 'You have one or more unpaid projects. To create a new farming project, please delete or pay for all unpaid projects',
       });
     }
 

@@ -1,4 +1,5 @@
 import { Container } from 'typedi';
+import { firestore } from 'firebase-admin';
 import { UserRepo } from '../user/user.repository';
 import { ProfileRepo } from './profile.repository';
 
@@ -33,16 +34,28 @@ export class ProfileService {
    *   accountName: string,
    *  }} bankData
    *
-   *  @returns {Promise<FirebaseFirestore.DocumentData>} user
+   *  @returns {Promise<{
+        * previouslyAdded: boolean,
+        * profile: FirebaseFirestore.DocumentData
+   *  }>} profile
    */
   static async addBankInfo(userId, bankData) {
     const profileRepo = Container.get(ProfileRepo);
 
     const profileRef = await profileRepo.getRefById(userId);
 
-    return profileRepo.update(profileRef, {
+    const data = (await profileRef.get()).data().bank;
+
+    if (data) {
+      return { previouslyAdded: true, profile: null };
+    }
+
+    const profile = await profileRepo.update(profileRef, {
       bank: bankData,
+      percentageComplete: firestore.FieldValue.increment(25),
     });
+
+    return { previouslyAdded: false, profile };
   }
 
   /**
@@ -54,16 +67,28 @@ export class ProfileService {
    *   addressLine1: string,
    *  }} addressData
    *
-   *  @returns {Promise<FirebaseFirestore.DocumentData>} user
+   *  @returns {Promise<{
+        * previouslyAdded: boolean,
+        * profile: FirebaseFirestore.DocumentData
+   *  }>} profile
    */
   static async addAddressInfo(userId, addressData) {
     const profileRepo = Container.get(ProfileRepo);
 
     const profileRef = await profileRepo.getRefById(userId);
 
-    return profileRepo.update(profileRef, {
+    const data = (await profileRef.get()).data().bank;
+
+    if (data) {
+      return { previouslyAdded: true, profile: null };
+    }
+
+    const profile = await profileRepo.update(profileRef, {
       address: addressData,
+      percentageComplete: firestore.FieldValue.increment(25),
     });
+
+    return { previouslyAdded: false, profile };
   }
 
   /**

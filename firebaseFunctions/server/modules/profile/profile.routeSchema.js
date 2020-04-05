@@ -33,8 +33,7 @@ export class ProfileSchema {
         .max(40)
         .required(),
       accountNumber: Joi.string()
-        .min(3)
-        .max(40)
+        .length(10)
         .required(),
       bankName: Joi.string()
         .min(3)
