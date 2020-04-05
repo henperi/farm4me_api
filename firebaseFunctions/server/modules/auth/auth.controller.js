@@ -17,9 +17,14 @@ export class AuthController {
     const { firstName, email, phone, password } = req.body;
 
     const isEmailTaken = await AuthService.checkEmailExists(email);
+    const isPhoneTaken = await AuthService.checkPhoneExists(phone);
 
     if (isEmailTaken) {
-      return AppResponse.badRequest(res, { message: 'An account already exist with this details' });
+      return AppResponse.badRequest(res, { message: 'This email is already registered on our database. Perhaps you should try to login if this email account is yours to you' });
+    }
+
+    if (isPhoneTaken) {
+      return AppResponse.badRequest(res, { message: 'This exact phone number is already registered on our database.' });
     }
 
     const { token } = await AuthService.signupUser({ email, phone, password, firstName });

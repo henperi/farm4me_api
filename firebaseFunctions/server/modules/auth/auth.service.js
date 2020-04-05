@@ -51,6 +51,23 @@ export class AuthService {
 
   /**
    *  Method to check if an email has been taken or not
+   *  @param {string} phone
+   *
+   *  @returns {Promise<boolean>} the status of an existing phone
+   */
+  static async checkPhoneExists(phone) {
+    const userRepo = Container.get(UserRepo);
+    const docSnapShot = await userRepo.getByPhone(phone);
+
+    if (docSnapShot.empty) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   *  Method to check if an email has been taken or not
    *  @param {string} email
    *  @param {string} password
    *

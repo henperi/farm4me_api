@@ -43,6 +43,21 @@ export class UserRepo {
 
   /**
    * method to get a user by email
+   *  @param {string} phone
+   *
+   *  @returns {Promise<FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>>} user
+   */
+  async getByPhone(phone) {
+    try {
+      return await this.User.where('phone', '==', phone).limit(1).get();
+    } catch (error) {
+      log(error);
+      throw new Error(error);
+    }
+  }
+
+  /**
+   * method to get a user by email
    *  @param {object} userData
    *
    *  @returns {Promise<FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>>} user
