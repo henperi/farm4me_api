@@ -27,6 +27,16 @@ projectRouter.get(
 );
 
 /**
+ * Get a single projects of the authunticated user
+ */
+projectRouter.get(
+  '/:projectId',
+  Authorize.user,
+  validateRouteSchema(ProjectSchema.getOne, 'params'),
+  asyncHandler(ProjectsController.getOne),
+);
+
+/**
  * Start a project
  */
 projectRouter.post(
@@ -34,6 +44,14 @@ projectRouter.post(
   Authorize.user,
   validateRouteSchema(ProjectSchema.start, 'params'),
   asyncHandler(ProjectsController.start),
+);
+
+/**
+ * Start a project
+ */
+projectRouter.post(
+  '/verify-and-start',
+  asyncHandler(ProjectsController.paystackVerifyAndStart),
 );
 
 export default projectRouter;

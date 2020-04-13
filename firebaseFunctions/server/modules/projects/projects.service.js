@@ -4,6 +4,7 @@ import paystackModule from 'paystack';
 import { ProjectsRepo } from './projects.repository';
 import { config } from '../../../config';
 import { generateShortId } from '../../helpers/generateShortId';
+import { UserStatsService } from '../userStats/userStats.service';
 
 const paystack = paystackModule(config.PAYSTACK.SECRET);
 
@@ -103,9 +104,9 @@ export class ProjectsService {
 
   /**
    * Method to create a newProject
-   *  @param {Project.create} userData
+   * @param {Project.create} userData
    *
-   *  @returns {Promise<FirebaseFirestore.DocumentData>} user
+   * @returns {Promise<FirebaseFirestore.DocumentData>} user
    */
   static async create({ investmentId, numberOfHecters, ownerId }) {
     const projectRepo = Container.get(ProjectsRepo);
@@ -135,6 +136,8 @@ export class ProjectsService {
 
     const projectRef = await projectRepo.create(project);
     const projectDoc = (await projectRef.get()).data();
+    UserStatsService.incrementTotalProjects(ownerId);
+
     projectDoc.id = projectRef.id;
 
     return { project: projectDoc };
@@ -201,7 +204,7 @@ export class ProjectsService {
 
   /**
    * Method to get a user's projects
-   *  @param {{ reference: string }} userData
+   * @param {{ reference: string }} userData
    *
    * @returns {Promise<{
    *    isValidProject: boolean,
@@ -242,6 +245,11 @@ export class ProjectsService {
       startDate: Date.now(),
       endDate: Date.now() + endDate,
     });
+
+    Promise.all([
+      UserStatsService.incrementTotalCashInvested(updatedProject.ownerId, updatedProject.totalCost),
+      UserStatsService.incrementTotalRunningProjects(updatedProject.ownerId),
+    ]);
 
     updatedProject.id = projectRef.id;
 

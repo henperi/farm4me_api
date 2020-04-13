@@ -77,7 +77,7 @@ export class ProfileService {
 
     const profileRef = await profileRepo.getRefById(userId);
 
-    const data = (await profileRef.get()).data().bank;
+    const data = (await profileRef.get()).data().address;
 
     if (data) {
       return { previouslyAdded: true, profile: null };

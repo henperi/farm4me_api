@@ -19,11 +19,20 @@ export class ProjectSchema {
   }
 
   /**
-   * @description The schema used to validate the {Post} /project/start/:projectId endpoint
+   * @description The schema used to validate the {Post} /project/start/:transactionRef endpoint
    */
   static get start() {
     return Joi.object({
       transactionRef: Joi.string().required(),
+    });
+  }
+
+  /**
+   * @description The schema used to validate the {Get} /project/:projectId endpoint
+   */
+  static get getOne() {
+    return Joi.object({
+      projectId: Joi.string().required(),
     });
   }
 }

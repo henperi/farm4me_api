@@ -20,6 +20,7 @@ class Collections {
     this.User = 'User';
     this.Profile = 'Profile';
     this.Project = 'Project';
+    this.UserStats = 'UserStats';
   }
 }
 

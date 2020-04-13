@@ -20,7 +20,7 @@ export class AuthController {
     const isPhoneTaken = await AuthService.checkPhoneExists(phone);
 
     if (isEmailTaken) {
-      return AppResponse.badRequest(res, { message: 'This email is already registered on our database. Perhaps you should try to login if this email account is yours to you' });
+      return AppResponse.badRequest(res, { message: 'This email is already registered on our database. Perhaps you should try to login if this email account is yours' });
     }
 
     if (isPhoneTaken) {
