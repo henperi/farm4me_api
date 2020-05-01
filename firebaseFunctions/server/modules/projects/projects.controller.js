@@ -35,7 +35,8 @@ export class ProjectsController {
 
     if (hasUnpaidProjects) {
       return AppResponse.badRequest(res, {
-        message: 'You have one or more unpaid projects. To create a new farming project, please delete or pay for all unpaid projects',
+        message:
+          'You have one or more unpaid projects. To create a new farming project, please delete or pay for all unpaid projects',
       });
     }
 
@@ -78,16 +79,25 @@ export class ProjectsController {
     const { id } = res.locals.AuthUser;
     const { projectId } = req.params;
 
-    const { projectSnapshot, belongsToUser } = await ProjectsService.isValidUserProject({
+    const {
+      projectSnapshot,
+      belongsToUser,
+    } = await ProjectsService.isValidUserProject({
       ownerId: id,
       projectId,
     });
 
     if (!belongsToUser) {
-      return AppResponse.notFound(res, { message: 'This farm project was not found' });
+      return AppResponse.notFound(res, {
+        message: 'This farm project was not found',
+      });
     }
 
-    return AppResponse.success(res, { data: { project: { ...projectSnapshot.data(), id: projectSnapshot.id } } });
+    return AppResponse.success(res, {
+      data: {
+        project: { ...projectSnapshot.data(), id: projectSnapshot.id },
+      },
+    });
   }
 
   /**
@@ -142,9 +152,7 @@ export class ProjectsController {
       });
     }
 
-    const updatedProject = await ProjectsService.start(
-      project.ref,
-    );
+    const updatedProject = await ProjectsService.start(project.ref);
 
     return AppResponse.success(res, { data: updatedProject });
   }
@@ -158,7 +166,10 @@ export class ProjectsController {
    * @returns {Promise<any>} response
    */
   static async paystackVerifyAndStart(req, res) {
-    const hash = crypto.createHmac('sha512', config.PAYSTACK.SECRET).update(JSON.stringify(req.body)).digest('hex');
+    const hash = crypto
+      .createHmac('sha512', config.PAYSTACK.SECRET)
+      .update(JSON.stringify(req.body))
+      .digest('hex');
 
     if (hash === req.headers['x-paystack-signature']) {
       const { reference } = req.body.data;
