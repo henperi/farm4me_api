@@ -70,6 +70,7 @@ export class UserRepo {
         firstName: userData.firstName,
         phone: userData.phone,
         email: userData.email,
+        role: 'User',
         password,
         createdAt: Date.now(),
       });
