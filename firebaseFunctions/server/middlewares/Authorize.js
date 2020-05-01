@@ -45,7 +45,7 @@ export class Authorize {
       const querySnapShot = await userRepo.getByEmail(email);
 
       if (querySnapShot.empty) {
-        return AppResponse.notFound(res, {
+        return AppResponse.unAuthorized(res, {
           message: 'Unable to authorize you',
         });
       }
