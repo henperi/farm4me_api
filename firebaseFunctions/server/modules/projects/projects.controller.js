@@ -76,7 +76,7 @@ export class ProjectsController {
    */
   static async getOne(req, res) {
     const { id } = res.locals.AuthUser;
-    const { projectId } = req.body;
+    const { projectId } = req.params;
 
     const { projectSnapshot, belongsToUser } = await ProjectsService.isValidUserProject({
       ownerId: id,
@@ -87,7 +87,7 @@ export class ProjectsController {
       return AppResponse.notFound(res, { message: 'This farm project was not found' });
     }
 
-    return AppResponse.success(res, { data: { project: projectSnapshot.data() } });
+    return AppResponse.success(res, { data: { project: { ...projectSnapshot.data(), id: projectSnapshot.id } } });
   }
 
   /**
