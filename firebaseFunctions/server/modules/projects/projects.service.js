@@ -9,8 +9,50 @@ import { UserStatsService } from '../userStats/userStats.service';
 const paystack = paystackModule(config.PAYSTACK.SECRET);
 
 const availableInvestment = {
+  '1a323e32ded': {
+    investmentId: '1a323e32ded',
+    name: 'Melon (Egusi)',
+    costPerHectare: 312125,
+    percentageProfit: 72.72,
+    duration: 6,
+    season: 'Dry and Wet',
+    insurance: 'Leadway Insurance',
+    refundPercent: '100%',
+  },
+  '22asd3323e32ded': {
+    investmentId: '22asd3323e32ded',
+    name: 'Sorghum (Guinea corn)',
+    costPerHectare: 244025,
+    percentageProfit: 63.91,
+    duration: 6,
+    season: 'Dry and Wet',
+    insurance: 'Leadway Insurance',
+    refundPercent: '100%',
+  },
+  '32dedaasaqee333r': {
+    investmentId: '32dedaasaqee333r',
+    name: 'Sesame Seeds',
+    costPerHectare: 278075,
+    percentageProfit: 42.4,
+    duration: 6,
+    season: 'Dry and Wet',
+    insurance: 'Leadway Insurance',
+    refundPercent: '100%',
+  },
+  '4ee3qr6ty33r': {
+    investmentId: '4ee3qr6ty33r',
+    name: 'Maize',
+    costPerHectare: 227000,
+    percentageProfit: 32.15,
+    duration: 6,
+    season: 'Dry and Wet',
+    insurance: 'Leadway Insurance',
+    refundPercent: '100%',
+  },
+  //
+  /*
   '1a2wQrd': {
-    id: '1a2wQrd',
+    investmentId: '1a2wQrd',
     name: 'Maize Project',
     costPerHectare: 125000,
     percentageProfit: 20,
@@ -20,7 +62,7 @@ const availableInvestment = {
     refundPercent: '100%',
   },
   '2a2wQrd': {
-    id: '2a2wQrd',
+    investmentId: '2a2wQrd',
     name: 'Sesam Project',
     costPerHectare: 180000,
     percentageProfit: 20,
@@ -30,7 +72,7 @@ const availableInvestment = {
     refundPercent: '100%',
   },
   '3a2wQrd': {
-    id: '3a2wQrd',
+    investmentId: '3a2wQrd',
     name: 'Millet Project',
     costPerHectare: 225000,
     percentageProfit: 20,
@@ -40,7 +82,7 @@ const availableInvestment = {
     refundPercent: '100%',
   },
   '4a2wQrd': {
-    id: '4a2wQrd',
+    investmentId: '4a2wQrd',
     name: 'Mellon Project',
     costPerHectare: 257000,
     percentageProfit: 20,
@@ -49,6 +91,7 @@ const availableInvestment = {
     insurance: 'Leadway Insurance',
     refundPercent: '100%',
   },
+  */
 };
 
 /**
@@ -111,7 +154,7 @@ export class ProjectsService {
   static async create({ investmentId, numberOfHecters, ownerId }) {
     const projectRepo = Container.get(ProjectsRepo);
     /**
-     * @type {typeof availableInvestment['1a2wQrd']}
+     * @type {typeof availableInvestment['x']}
      */
     const investmentData = availableInvestment[investmentId];
     const totalCost = investmentData.costPerHectare * parseInt(numberOfHecters, 10);
@@ -131,6 +174,7 @@ export class ProjectsService {
       createdAt: Date.now(),
       startDate: null,
       endDate: null,
+      invoiceId: generateShortId(),
       reference: `${ownerId}-.OS.-${generateShortId()}`,
     };
 
@@ -201,7 +245,6 @@ export class ProjectsService {
     return { projectSnapshot: null, belongsToUser: false };
   }
 
-
   /**
    * Method to get a user's projects
    * @param {{ reference: string }} userData
@@ -247,8 +290,13 @@ export class ProjectsService {
     });
 
     Promise.all([
-      UserStatsService.incrementTotalCashInvested(updatedProject.ownerId, updatedProject.totalCost),
-      UserStatsService.incrementTotalRunningProjects(updatedProject.ownerId),
+      UserStatsService.incrementTotalCashInvested(
+        updatedProject.ownerId,
+        updatedProject.totalCost,
+      ),
+      UserStatsService.incrementTotalRunningProjects(
+        updatedProject.ownerId,
+      ),
     ]);
 
     updatedProject.id = projectRef.id;
