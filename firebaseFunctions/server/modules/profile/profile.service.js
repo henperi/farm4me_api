@@ -3,6 +3,7 @@ import { firestore } from 'firebase-admin';
 import { UserRepo } from '../user/user.repository';
 import { ProfileRepo } from './profile.repository';
 
+
 /**
  * User Service class
  */
@@ -90,6 +91,41 @@ export class ProfileService {
 
     return { previouslyAdded: false, profile };
   }
+
+  // /**
+  //  *
+  //  * @param {{
+  //  *  userId: string,
+  //  *  imageFile: File,
+  //  * folderName: string,
+  //  * }} uploadData
+  //  */
+  // static async uploadImage({ userId, imageFile, folderName }) {
+  //   const fileName = `${folderName}/${imageFile.name}-${userId}.jpg`;
+  //   const file = bucket.file(`/${fileName}`);
+
+  //   const writeStream = file.createWriteStream({
+  //     metadata: {
+  //       contentType: imageFile.type,
+  //     },
+  //   });
+
+  //   const result = new Promise((resolve, reject) => {
+  //     writeStream.on('error', (err) => {
+  //       reject(err);
+  //     });
+
+  //     writeStream.on('finish', () => {
+  //       // const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${(encodeURI(fileName)).replace('\/', '%2F')}`;
+  //       const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${(encodeURI(fileName)).replace('\/', '%2F')}`;
+  //       resolve(publicUrl);
+  //     });
+  //   });
+
+  //   // file.save()
+
+  //   return result;
+  // }
 
   /**
   *  Service method to update a user's docs info

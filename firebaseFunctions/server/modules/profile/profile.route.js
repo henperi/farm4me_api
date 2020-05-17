@@ -39,6 +39,16 @@ profileRouter.post(
 );
 
 /**
+ * add address info
+ */
+profileRouter.post(
+  '/upload-images',
+  Authorize.user,
+  // validateRouteSchema(ProfileSchema.addAddressInfo, 'body'),
+  asyncHandler(ProfileController.uploadRelevantImages),
+);
+
+/**
  * add/update bank info
  */
 profileRouter.get(

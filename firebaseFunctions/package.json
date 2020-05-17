@@ -18,6 +18,7 @@
     "babel-runtime": "^6.26.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+    "busboy": "^0.3.1",
     "cors": "^2.8.5",
     "cross-env": "^5.2.0",
     "dotenv": "^8.0.0",
@@ -29,11 +30,11 @@
     "moment": "^2.24.0",
     "morgan": "^1.9.1",
     "naija-phone-number": "^1.0.2",
+    "nodemailer": "^6.4.6",
     "paystack": "^2.0.1",
     "rimraf": "^3.0.2",
     "shortid": "^2.2.15",
-    "typedi": "^0.8.0",
-    "nodemailer": "^6.4.6"
+    "typedi": "^0.8.0"
   },
   "private": true
 }
