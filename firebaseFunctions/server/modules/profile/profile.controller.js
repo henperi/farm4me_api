@@ -1,14 +1,9 @@
 // eslint-disable-next-line no-unused-vars
 import * as Express from 'express';
-import Busboy from 'busboy';
-
-import os from 'os';
-import fs from 'fs';
-import path from 'path';
-
 import { ProfileService } from './profile.service';
 
 import { AppResponse } from '../../helpers/AppResponse';
+import { uploadFile } from '../../helpers/uploadFile';
 
 /**
  * User Controller Class
@@ -85,67 +80,34 @@ export class ProfileController {
    * @returns {Promise<any>} response
    */
   static async uploadRelevantImages(req, res) {
-    const busboy = new Busboy({ headers: req.headers });
-    const tmpdir = os.tmpdir();
+    const { id: userId } = res.locals.AuthUser;
+    const fileList = req.files;
 
-    // This object will accumulate all the fields, keyed by their name
-    const fields = {};
+    const uploadItems = () => fileList.map(file => uploadFile({
+      file,
+      userId,
+      folderName: 'documents',
+    }));
 
-    // This object will accumulate all the uploaded files, keyed by their name.
-    const uploads = {};
+    /** @type {docsData} */
+    const docsData = {};
 
-    // This code will process each non-file field in the form.
-    busboy.on('field', (fieldname, val) => {
-      // TODO(developer): Process submitted field values here
-      console.log(`Processed field ${fieldname}: ${val}.`);
-      fields[fieldname] = val;
+    const uploadResults = await Promise.all(uploadItems());
+
+    uploadResults.map(item => {
+      const [key] = Object.keys(item);
+      const [value] = Object.values(item);
+
+      docsData[key] = value;
+
+      return docsData;
     });
 
-    const fileWrites = [];
+    const profile = await ProfileService.addDocsInfo(userId, docsData);
 
-    // This code will process each file uploaded.
-    busboy.on('file', (fieldname, file, filename) => {
-      // Note: os.tmpdir() points to an in-memory file system on GCF
-      // Thus, any files in it must fit in the instance's memory.
-      const filepath = path.join(tmpdir, filename);
-      uploads[fieldname] = filepath;
-
-      console.log(`Processed file: ${filename}`);
-      console.log('path', filepath);
-
-      // const writeStream = fs.createWriteStream(filepath);
-      // file.pipe(writeStream);
-
-      // File was processed by Busboy; wait for it to be written.
-      // Note: GCF may not persist saved files across invocations.
-      // Persistent files must be kept in other locations
-      // (such as Cloud Storage buckets).
-      // const promise = new Promise((resolve, reject) => {
-      //   file.on('end', () => {
-      //     // writeStream.end();
-      //   });
-      //   // writeStream.on('finish', resolve);
-      //   // writeStream.on('error', reject);
-      // });
-      // fileWrites.push(promise);
+    return AppResponse.success(res, {
+      data: { profile },
     });
-
-    busboy.on('finish', async () => {
-      await Promise.all(fileWrites);
-
-      // TODO(developer): Process saved files here
-      for (const file in uploads) {
-        fs.unlinkSync(uploads[file]);
-      }
-      res.send();
-    });
-
-    if (req.rawBody) {
-      busboy.end(req.rawBody);
-    } else { req.pipe(busboy); }
-
-
-    return AppResponse.success(res);
   }
 
   /**

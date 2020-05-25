@@ -92,47 +92,12 @@ export class ProfileService {
     return { previouslyAdded: false, profile };
   }
 
-  // /**
-  //  *
-  //  * @param {{
-  //  *  userId: string,
-  //  *  imageFile: File,
-  //  * folderName: string,
-  //  * }} uploadData
-  //  */
-  // static async uploadImage({ userId, imageFile, folderName }) {
-  //   const fileName = `${folderName}/${imageFile.name}-${userId}.jpg`;
-  //   const file = bucket.file(`/${fileName}`);
-
-  //   const writeStream = file.createWriteStream({
-  //     metadata: {
-  //       contentType: imageFile.type,
-  //     },
-  //   });
-
-  //   const result = new Promise((resolve, reject) => {
-  //     writeStream.on('error', (err) => {
-  //       reject(err);
-  //     });
-
-  //     writeStream.on('finish', () => {
-  //       // const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${(encodeURI(fileName)).replace('\/', '%2F')}`;
-  //       const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${(encodeURI(fileName)).replace('\/', '%2F')}`;
-  //       resolve(publicUrl);
-  //     });
-  //   });
-
-  //   // file.save()
-
-  //   return result;
-  // }
-
   /**
   *  Service method to update a user's docs info
   *  @param {string} userId
   *  @param {{
-  *   profileImage: string,
-  *   validIdCard: string,
+  *   validId: string,
+  *   photo: string,
   *  }} docsData
   *
   *  @returns {Promise<FirebaseFirestore.DocumentData>} user
@@ -142,8 +107,34 @@ export class ProfileService {
 
     const profileRef = await profileRepo.getRefById(userId);
 
+    const data = (await profileRef.get()).data();
+
+    const incrementValue = (value) => {
+      if (data.percentageComplete >= 100) {
+        return 100;
+      }
+
+      if ((data.percentageComplete + value) > 100) {
+        return 100;
+      }
+
+      return firestore.FieldValue.increment(value);
+    };
+
+    const getNestedKeyValues = () => {
+      const result = {};
+      Object.keys(docsData).map(key => {
+        result[`docs.${key}`] = docsData[key];
+
+        return result;
+      });
+
+      return result;
+    };
+
     return profileRepo.update(profileRef, {
-      docs: docsData,
+      ...getNestedKeyValues(),
+      percentageComplete: incrementValue(25),
     });
   }
 

@@ -1,37 +1,41 @@
 const admin = require('firebase-admin');
 
-
 /**
  *
  * @param {{
  *  userId: string,
- *  imageFile: File,
+ *  file: Express.Multer.File,
  *  folderName: string,
  * }} uploadData
  *
- * @returns {Promise<string>} result
+ * @returns {Promise<any>} result
  */
-export const uploadFile = async ({ userId, imageFile, folderName }) => {
-  console.log(imageFile);
-
+export const uploadFile = async ({ userId, file, folderName }) => {
   const bucket = admin.storage().bucket();
-  const fileName = `${folderName}/${userId}/${imageFile.name}`;
-  const file = bucket.file(fileName);
+  const fileName = `${folderName}/${userId}/${file.fieldname}`;
 
-  return file.save(imageFile)
-    .then(() => file.getSignedUrl({
-      action: 'read',
-      expires: '03-09-2500',
-    }))
-    .then((urls) => {
-      const url = urls[0];
-      console.log(`media url = ${url}`);
+  return new Promise((resolve, reject) => {
+    const fileUpload = bucket.file(fileName);
 
-      return url;
-    })
-    .catch((err) => {
-      console.log(`Unable to upload encoded file ${err}`);
-
-      throw Error(err);
+    const blobStream = fileUpload.createWriteStream({
+      metadata: {
+        contentType: file.mimetype,
+      },
     });
+
+    blobStream.on('error', error => reject(error));
+
+    blobStream.on('finish', () => {
+      fileUpload.getSignedUrl({
+        action: 'read',
+        expires: '03-05-3500',
+      })
+        .then(url => {
+          resolve({ [file.fieldname]: url[0] });
+        })
+        .catch(error => reject(error));
+    });
+
+    blobStream.end(file.buffer);
+  });
 };
