@@ -1,16 +1,18 @@
 import admin from 'firebase-admin';
 
-// @ts-ignore
 import serviceAccount from '../../serviceAccount.json';
 
 admin.initializeApp({
+  // @ts-ignore
   credential: admin.credential.cert(serviceAccount),
+  storageBucket: 'gs://farm4me-484cb.appspot.com/',
 });
 
 /**
   @typedef {fireDb} Firestore
 */
 export const fireDb = admin.firestore();
+export const storageBucket = admin.storage().bucket();
 
 /**
  * The db collections

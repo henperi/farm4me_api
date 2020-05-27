@@ -3,6 +3,7 @@ import { firestore } from 'firebase-admin';
 import { UserRepo } from '../user/user.repository';
 import { ProfileRepo } from './profile.repository';
 
+
 /**
  * User Service class
  */
@@ -95,8 +96,8 @@ export class ProfileService {
   *  Service method to update a user's docs info
   *  @param {string} userId
   *  @param {{
-  *   profileImage: string,
-  *   validIdCard: string,
+  *   validId: string,
+  *   photo: string,
   *  }} docsData
   *
   *  @returns {Promise<FirebaseFirestore.DocumentData>} user
@@ -106,8 +107,34 @@ export class ProfileService {
 
     const profileRef = await profileRepo.getRefById(userId);
 
+    const data = (await profileRef.get()).data();
+
+    const incrementValue = (value) => {
+      if (data.percentageComplete >= 100) {
+        return 100;
+      }
+
+      if ((data.percentageComplete + value) > 100) {
+        return 100;
+      }
+
+      return firestore.FieldValue.increment(value);
+    };
+
+    const getNestedKeyValues = () => {
+      const result = {};
+      Object.keys(docsData).map(key => {
+        result[`docs.${key}`] = docsData[key];
+
+        return result;
+      });
+
+      return result;
+    };
+
     return profileRepo.update(profileRef, {
-      docs: docsData,
+      ...getNestedKeyValues(),
+      percentageComplete: incrementValue(25),
     });
   }
 

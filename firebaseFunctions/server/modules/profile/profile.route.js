@@ -1,10 +1,20 @@
 import express from 'express';
+import multer from 'multer';
+
 
 import { asyncHandler } from '../../helpers/asyncHandler';
 import { validateRouteSchema } from '../../helpers/validateRouteSchema';
 import { ProfileSchema } from './profile.routeSchema';
 import { ProfileController } from './profile.controller';
 import { Authorize } from '../../middlewares/Authorize';
+
+const SIZE_LIMIT = 10 * 1024 * 1024; // 10MB
+
+const multipartFormDataParser = multer({
+  storage: multer.memoryStorage(),
+  limits: { fieldSize: SIZE_LIMIT },
+  startProcessing: (req, busboy) => (req.rawBody ? busboy.end(req.rawBody) : req.pipe(busboy)),
+});
 
 const profileRouter = express.Router();
 
@@ -36,6 +46,16 @@ profileRouter.post(
   Authorize.user,
   validateRouteSchema(ProfileSchema.addAddressInfo, 'body'),
   asyncHandler(ProfileController.addAddressInfo),
+);
+
+/**
+ * add address info
+ */
+profileRouter.post(
+  '/upload-images',
+  Authorize.user,
+  multipartFormDataParser.any(),
+  asyncHandler(ProfileController.uploadRelevantImages),
 );
 
 /**

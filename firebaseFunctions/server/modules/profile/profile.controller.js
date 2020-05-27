@@ -1,7 +1,10 @@
 // eslint-disable-next-line no-unused-vars
 import * as Express from 'express';
 import { ProfileService } from './profile.service';
+
 import { AppResponse } from '../../helpers/AppResponse';
+import { uploadFile } from '../../helpers/uploadFile';
+
 /**
  * User Controller Class
  */
@@ -31,10 +34,15 @@ export class ProfileController {
   static async addBankInfo(req, res) {
     const { id } = res.locals.AuthUser;
 
-    const { profile, previouslyAdded } = await ProfileService.addBankInfo(id, req.body);
+    const { profile, previouslyAdded } = await ProfileService.addBankInfo(
+      id,
+      req.body,
+    );
 
     if (previouslyAdded) {
-      return AppResponse.conflict(res, { message: 'You have added your bank information previously' });
+      return AppResponse.conflict(res, {
+        message: 'You have added your bank information previously',
+      });
     }
 
     return AppResponse.success(res, { data: { profile } });
@@ -50,13 +58,56 @@ export class ProfileController {
   static async addAddressInfo(req, res) {
     const { id } = res.locals.AuthUser;
 
-    const { profile, previouslyAdded } = await ProfileService.addAddressInfo(id, req.body);
+    const {
+      profile,
+      previouslyAdded,
+    } = await ProfileService.addAddressInfo(id, req.body);
 
     if (previouslyAdded) {
-      return AppResponse.conflict(res, { message: 'You have added your address information previously' });
+      return AppResponse.conflict(res, {
+        message: 'You have added your address information previously',
+      });
     }
 
     return AppResponse.success(res, { data: { profile } });
+  }
+
+  /**
+   *
+   * @param {any} req
+   * @param {Express.Response} res
+   *
+   * @returns {Promise<any>} response
+   */
+  static async uploadRelevantImages(req, res) {
+    const { id: userId } = res.locals.AuthUser;
+    const fileList = req.files;
+
+    const uploadItems = () => fileList.map(file => uploadFile({
+      file,
+      userId,
+      folderName: 'documents',
+    }));
+
+    /** @type {docsData} */
+    const docsData = {};
+
+    const uploadResults = await Promise.all(uploadItems());
+
+    uploadResults.map(item => {
+      const [key] = Object.keys(item);
+      const [value] = Object.values(item);
+
+      docsData[key] = value;
+
+      return docsData;
+    });
+
+    const profile = await ProfileService.addDocsInfo(userId, docsData);
+
+    return AppResponse.success(res, {
+      data: { profile },
+    });
   }
 
   /**

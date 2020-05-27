@@ -42,8 +42,12 @@
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",
+    "busboy": "^0.3.1",
     "express-form-data": "^2.0.11",
+    "express-multipart-file-parser": "^0.1.2",
     "morgan": "^1.9.1",
+    "multer": "github:emadalam/multer",
+    "nodemailer": "^6.4.6",
     "shortid": "^2.2.15"
   }
 }
