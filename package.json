@@ -47,7 +47,7 @@
     "express-multipart-file-parser": "^0.1.2",
     "morgan": "^1.9.1",
     "multer": "github:emadalam/multer",
-    "nodemailer": "^6.4.6",
+    "nodemailer": "^6.4.16",
     "shortid": "^2.2.15"
   }
 }
